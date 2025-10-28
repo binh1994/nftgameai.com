@@ -1,0 +1,33 @@
+name: Auto Daily Post for NFTGameAI
+
+on:
+  schedule:
+    # Mỗi ngày 8h sáng UTC (15h Việt Nam)
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  autogen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Generate new post
+        run: python3 auto_generate.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "AutoPublisher"
+          git config user.email "actions@github.com"
+          git add _posts/
+          git commit -m "🧠 Auto new post $(date +'%Y-%m-%d %H:%M')" || echo "No changes"
+          git push origin main
