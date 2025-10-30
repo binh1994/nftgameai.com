@@ -1,18 +1,15 @@
 title: "NFTGameAI"
-description: "AI-powered insights on NFT gaming and digital collectibles."
-baseurl: ""
-url: "https://nftgameai.netlify.app"
-
+description: "AI-powered insights on NFT Gaming & Digital Collectibles"
+baseurl: "" 
+url: "https://YOUR_NETLIFY_URL_OR_DOMAIN" # đổi nếu có custom domain
 markdown: kramdown
-theme: minima
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
+kramdown:
+  input: GFM
+  hard_wrap: false
+  parse_block_html: true
+collections: 
+  posts:
+    output: true
 
-# sitemap & seo
-exclude: [README.md, Gemfile, Gemfile.lock]
-defaults:
-  - scope:
-      path: ""
-    values:
-      layout: default
+# google analytics (nếu có)
+google_analytics: "G-6BDSQ4QGJN"   # đổi theo mã GA (hoặc để trống)
