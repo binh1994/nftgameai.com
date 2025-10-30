@@ -1,36 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NFTGameAI - AI in Gaming & Collectibles</title>
-  <meta name="description" content="Daily insights on AI-powered NFT gaming, metaverse, and blockchain collectibles.">
-  <link rel="stylesheet" href="/assets/style.css">
-</head>
-<body>
-<header class="hero">
-  <h1>🎮 NFTGameAI</h1>
-  <p>AI-powered insights on NFT Gaming & Digital Collectibles</p>
-  <div class="ad-banner">{% raw %}{% include ad.html %}{% endraw %}</div>
-</header>
+---
+layout: default
+title: "NFTGameAI | AI-powered insights on NFT Gaming & Digital Collectibles"
+---
 
-<main>
-  <section class="posts">
-    <h2>Latest Articles</h2>
-    {% raw %}{% for post in site.posts %}{% endraw %}
-    <article class="post-card">
-      {% raw %}{% if post.image %}{% endraw %}<img src="{{ post.image }}" alt="{{ post.title }}">{% raw %}{% endif %}{% endraw %}
-      <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
-      <p>{{ post.excerpt | strip_html | truncate: 180 }}</p>
-    </article>
-    {% raw %}{% endfor %}{% endraw %}
-  </section>
-</main>
+<section class="hero">
+  <div class="container center">
+    <h1 class="logo-text">🎮 NFTGameAI</h1>
+    <p class="subtitle">AI-powered insights on NFT Gaming & Digital Collectibles</p>
+    {% include ad.html %}
+  </div>
+</section>
+
+<section class="content container">
+  <h2 class="section-title">Latest Articles</h2>
+
+  {% for post in site.posts %}
+  <div class="post-card">
+    {% if post.image %}
+      <img src="{{ post.image }}" alt="{{ post.title }}" class="post-thumb">
+    {% endif %}
+    <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+    <p>{{ post.excerpt | strip_html | truncate: 180 }}</p>
+  </div>
+  {% endfor %}
+</section>
+
+<section class="links container">
+  <h2>Friendly Network Links</h2>
+  <p>
+    {% assign domains = "bottradingai.com,botgame.io,metaversebot.io,nftgameai.com,botdefi.io,esportsai.io,aiesports.io,nftgamepro.com,botesports.com,hubgaming.io,botblockchain.io,botplay.io,botweb3ai.com,pronftgame.com" | split: "," %}
+    {% for domain in domains %}
+      <a href="https://{{ domain }}" target="_blank" rel="nofollow">{{ domain }}</a>{% unless forloop.last %} • {% endunless %}
+    {% endfor %}
+  </p>
+</section>
 
 <footer>
   <p>© {{ site.time | date: '%Y' }} nftgameai.com</p>
 </footer>
-
-{% raw %}{% include analytics.html %}{% endraw %}
-</body>
-</html>
