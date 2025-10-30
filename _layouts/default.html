@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{{ page.title | default: site.title }}</title>
-
   <meta name="description" content="{{ page.description | default: site.description }}" />
   <link rel="stylesheet" href="/assets/style.css" />
   {% include analytics.html %}
@@ -13,15 +12,17 @@
   <header class="site-header">
     <div class="container">
       <a class="logo" href="{{ '/' | relative_url }}">
-        <!-- svg logo or text -->
-        <img src="/assets/logo.svg" alt="{{ site.title }}" style="height:48px;"/>
+        <img src="/assets/logo.svg" alt="{{ site.title }}" style="height:48px"/>
       </a>
-      <h1 class="site-title">{{ site.title }}</h1>
-      <p class="site-sub">{{ site.description }}</p>
+      <div class="site-brand">
+        <h1 class="site-title">{{ site.title }}</h1>
+        <p class="site-sub">{{ site.description }}</p>
+      </div>
     </div>
   </header>
 
   <main class="container">
+    <!-- Đây là chỗ Jekyll chèn HTML đã convert từ markdown -->
     {{ content }}
   </main>
 
