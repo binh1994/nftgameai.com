@@ -1,130 +1,115 @@
 #!/usr/bin/env python3
-# auto_generate.py
-# Generates a Jekyll post for a static site (no raw Liquid escaping).
-# Produces front matter and markdown content that includes:
-#  - Markdown header image
-#  - {% include ad.html %} inserted correctly
-#  - Friendly backlinks list (single block)
-#  - UTF-8 safe writing
+# -*- coding: utf-8 -*-
+"""
+auto_generate.py (NFTGameAI v3)
+Generate unique daily post with image, ad, backlinks, and varied AI-like content.
+"""
 
-import os, datetime, random, pathlib, sys
+import os, random, datetime, textwrap
 
 DOMAINS = [
-    'bottradingai.com','botgame.io','metaversebot.io','nftgameai.com',
-    'hubgaming.io','botdefi.io','esportsai.io','nftgamepro.com',
-    'botesports.com','aiesports.io','pronftgame.com','botplay.io',
-    'botweb3ai.com','botblockchain.io'
+    "bottradingai.com","botgame.io","metaversebot.io","nftgameai.com","hubgaming.io",
+    "botdefi.io","esportsai.io","nftgamepro.com","botesports.com","aiesports.io",
+    "pronftgame.com","botplay.io","botweb3ai.com","botblockchain.io"
 ]
-
-IMAGES = {
-    # a small sample pool per domain; replace or expand as needed.
-    'nftgameai.com': [
-        'https://picsum.photos/1200/630?random=101',
-        'https://picsum.photos/1200/630?random=102',
-        'https://picsum.photos/1200/630?random=103'
-    ],
-    'default': [
-        'https://picsum.photos/1200/630?random=201',
-        'https://picsum.photos/1200/630?random=202',
-        'https://picsum.photos/1200/630?random=203'
-    ]
-}
 
 TOPICS = [
-  "Blockchain-driven Rewards in NFT Games",
-  "How Play-to-Earn Is Evolving in 2025",
-  "Tokenomics that Actually Work for Players",
-  "AI Tools for Better NFT Game Design",
-  "Player-Owned Economies & Governance"
+    "AI-Driven Storylines in NFT Worlds",
+    "Blockchain Rewards Reshaping Game Ownership",
+    "The Future of Play-to-Earn Models",
+    "Metaverse Interoperability Through AI Agents",
+    "Player-Owned Economies and DAO Governance",
+    "How Smart Contracts Build Game Trust",
+    "NFT Assets That Evolve With Gameplay",
+    "Why Web3 Games Need AI Moderation",
+    "Dynamic Tokenomics: Balancing Fun & Finance",
+    "Virtual Marketplaces Beyond Loot Boxes"
 ]
 
-def pick_image(domain):
-    pool = IMAGES.get(domain, IMAGES.get('default', []))
-    return random.choice(pool) if pool else ''
+TONE = [
+    "In today’s fast-paced NFT ecosystem, innovation is redefining how players earn, trade, and interact.",
+    "AI continues to merge with NFT gaming, creating immersive experiences and reshaping digital economies.",
+    "Developers are shifting focus toward sustainable game economies, prioritizing transparency and player retention.",
+    "Smart contracts now handle in-game assets seamlessly, pushing blockchain gaming closer to mass adoption.",
+    "Communities in the metaverse are forming decentralized marketplaces powered by collective governance."
+]
 
-def pick_backlinks(domain):
-    others = [d for d in DOMAINS if d != domain]
-    random.shuffle(others)
-    pick = others[:5]   # show up to 5 friendly links inline
-    return "\n".join([f"- [{d}](https://{d})" for d in pick])
+CONCLUSION = [
+    "The synergy between AI, blockchain, and gaming is just beginning — and it’s already rewriting the rules of ownership.",
+    "NFT gaming is evolving fast, but the projects that blend utility, creativity, and fairness will stand the test of time.",
+    "As more players embrace Web3, expect gameplay that feels alive, adaptive, and driven by player decisions.",
+    "Tomorrow’s top NFT games won’t just be entertainment — they’ll be entire digital economies in motion."
+]
+
+IMAGES = [
+    "https://picsum.photos/1200/630?random=301",
+    "https://picsum.photos/1200/630?random=302",
+    "https://picsum.photos/1200/630?random=303",
+    "https://picsum.photos/1200/630?random=304",
+    "https://picsum.photos/1200/630?random=305",
+    "https://picsum.photos/1200/630?random=306",
+    "https://picsum.photos/1200/630?random=307"
+]
 
 def slugify(title):
-    s = title.lower()
-    # keep simple: letters, numbers, hyphen
-    s = ''.join([c if c.isalnum() else '-' for c in s])
-    while '--' in s:
-        s = s.replace('--','-')
-    return s.strip('-')
+    s = ''.join(c if c.isalnum() else '-' for c in title.lower())
+    return '-'.join(filter(None, s.split('-')))
 
-def generate_md(domain):
-    today = datetime.date.today()
-    iso = today.isoformat()
-    title = random.choice(TOPICS)
-    image = pick_image(domain)
-    desc = title + " — concise insights for builders & players."
-    backlinks_md = pick_backlinks(domain)
+def generate_backlinks():
+    links = random.sample(DOMAINS, 5)
+    return "\n".join([f"- [{d}](https://{d})" for d in links])
 
-    # Template uses a placeholder __AD__ to inject the Liquid include after format()
-    template = (
-        "---\n"
-        "layout: post\n"
-        "title: \"{title}\"\n"
-        "date: {date}\n"
-        "author: \"NFTGameAI Team\"\n"
-        "description: \"{desc}\"\n"
-        "image: \"{image}\"\n"
-        "---\n\n"
-        "_This post was auto-generated by NFTGameAI engine._\n\n"
-        # top image (markdown)
-        "![{title}]({image})\n\n"
-        "__AD__\n\n"
-        "### Key Highlights\n\n"
-        "- Innovation through NFTs and on-chain rewards\n"
-        "- Player-owned economies and token design\n"
-        "- Design patterns for long-term engagement\n\n"
-        "### Friendly Network\n\n"
-        "{backlinks_md}\n\n"
-        "---\n\n"
-        "## What's changing\n\n"
-        "Short analysis and actionable notes for developers and players.\n\n"
-        "## Read more\n\n"
-        "- [Explore similar articles](/)\n"
-    )
-
-    content = template.format(
-        title=title,
-        date=iso,
-        desc=desc.replace('"',''),
-        image=image,
-        backlinks_md=backlinks_md
-    )
-
-    # Now replace the __AD__ token with the exact Liquid include WITHOUT escaping braces.
-    # We must insert the Jekyll include exactly: {% include ad.html %}
-    content = content.replace("__AD__", "{% include ad.html %}")
-
-    # filename
-    slug = slugify(title)
-    filename = f"_posts/{iso}-{slug}.md"
-    return filename, content
+def generate_content(title):
+    intro = random.choice(TONE)
+    body_parts = [
+        "### Key Highlights\n",
+        "- Integration of AI-driven decision systems\n"
+        "- Real value through tokenized economies\n"
+        "- Future potential for immersive metaverse games\n\n",
+        "### Industry Insight\n",
+        random.choice(TONE) + "\n",
+        "### Challenges Ahead\n"
+        "- Balancing speculation and gameplay depth\n"
+        "- Maintaining fair reward distribution\n"
+        "- Sustaining active player engagement\n\n",
+        "### Expert Takeaway\n",
+        random.choice(CONCLUSION)
+    ]
+    return "\n".join(body_parts)
 
 def main():
-    # Determine domain: env SITE_DOMAIN else folder name
-    domain = os.environ.get("SITE_DOMAIN", "").strip()
-    if not domain:
-        domain = os.path.basename(os.getcwd()).strip()
-    if not os.path.exists("_posts"):
-        os.makedirs("_posts", exist_ok=True)
+    today = datetime.date.today()
+    title = random.choice(TOPICS)
+    slug = slugify(title)
+    date_str = today.isoformat()
+    filename = f"_posts/{date_str}-{slug}.md"
 
-    fn, content = generate_md(domain)
-    # Avoid overwriting: if exists, append random suffix
-    if os.path.exists(fn):
-        base, ext = os.path.splitext(fn)
-        fn = f"{base}-{random.randint(100,999)}{ext}"
+    content = textwrap.dedent(f"""\
+    ---
+    layout: post
+    title: "{title}"
+    date: {date_str}
+    author: "NFTGameAI Team"
+    description: "Daily insight: {title}"
+    image: "{random.choice(IMAGES)}"
+    ---
 
-    with open(fn, "w", encoding="utf-8") as f:
+    _This post was auto-generated by NFTGameAI engine._
+
+    ![{title}]({random.choice(IMAGES)})
+
+    {% include ad.html %}
+
+    {generate_content(title)}
+
+    ### Friendly Network
+    {generate_backlinks()}
+    """)
+
+    os.makedirs("_posts", exist_ok=True)
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(content)
-    print("Wrote:", fn)
+    print(f"✅ Generated: {filename}")
 
 if __name__ == "__main__":
     main()
