@@ -3,10 +3,10 @@
 import os, random, datetime, textwrap
 
 DOMAINS = [
-    "bottradingai.com","botgame.io","metaversebot.io","nftgameai.com",
-    "hubgaming.io","botdefi.io","esportsai.io","nftgamepro.com",
-    "botesports.com","aiesports.io","pronftgame.com","botplay.io",
-    "botweb3ai.com","botblockchain.io"
+  "bottradingai.com","botgame.io","metaversebot.io","nftgameai.com",
+  "hubgaming.io","botdefi.io","esportsai.io","nftgamepro.com",
+  "botesports.com","aiesports.io","pronftgame.com","botplay.io",
+  "botweb3ai.com","botblockchain.io"
 ]
 
 TOPICS = [
@@ -27,50 +27,35 @@ IMAGES = [
   "https://picsum.photos/1200/630?random=504"
 ]
 
-INTROS = [
-  "In today’s Web3 landscape, games are no longer just entertainment — they’re economic ecosystems.",
-  "AI-driven NFT games are changing how digital assets are valued and traded by millions of players."
-]
-
-BODIES = [
-  "NFT integration has opened a new layer of game ownership and engagement. Players now earn, stake, and evolve their in-game assets through smart contracts.",
-  "AI-generated environments and adaptive economies make each session unique. The fusion of AI + blockchain is building valuable virtual economies."
-]
-
-CONCLUSIONS = [
-  "The intersection of AI and blockchain will continue to drive innovation in gaming through 2025 and beyond.",
-  "NFT ecosystems that focus on utility and creativity will dominate the decentralized gaming future."
-]
-
 def slugify(s):
     s = s.lower()
-    out = []
+    allowed = []
     for ch in s:
-        if ch.isalnum(): out.append(ch)
-        else: out.append('-')
-    return '-'.join([p for p in ''.join(out).split('-') if p])
+        if ch.isalnum(): allowed.append(ch)
+        else: allowed.append('-')
+    s2 = ''.join(allowed)
+    parts = [p for p in s2.split('-') if p]
+    return '-'.join(parts)[:60]
 
 def pick_backlinks(n=5):
-    choices = [d for d in DOMAINS]
+    choices = list(DOMAINS)
     random.shuffle(choices)
-    sel = choices[:n]
-    return "\n".join(["- [%s](https://%s)" % (d, d) for d in sel])
+    return "\n".join(["- [%s](https://%s)" % (d, d) for d in choices[:n]])
 
 def generate_md():
     title = random.choice(TOPICS)
     slug = slugify(title)
     date = datetime.date.today().isoformat()
     image = random.choice(IMAGES)
-    intro = random.choice(INTROS)
-    body1 = random.choice(BODIES)
-    body2 = random.choice(BODIES)
-    conclusion = random.choice(CONCLUSIONS)
-    backlinks = pick_backlinks()
+    intro = "In today’s Web3 landscape, games are not just entertainment — they are economies."
+    body1 = "NFT integration and smart contracts create new ways to reward players and sustain communities."
+    body2 = "AI-driven personalization will keep players engaged while offering fair distribution of rewards."
+    conclusion = "The intersection of AI and blockchain will drive the next wave of gaming innovation."
 
-    # We add the ad include as Liquid include (Jekyll will process)
-    ad_include = "{% include ad.html %}"
+    # Use literal Liquid include string — we ensure we do NOT pass this into str.format placeholders.
+    ad_tag = "{% include ad.html %}"
 
-    content = textwrap.dedent("""\
+    markdown = textwrap.dedent("""\
     ---
     layout: post
     title: "{title}"
@@ -84,7 +69,7 @@ def generate_md():
 
     ![{title}]({image})
 
-    {ad_include}
+    {ad_tag}
 
     {intro}
 
@@ -101,26 +86,26 @@ def generate_md():
     {backlinks}
 
     **Conclusion:** {conclusion}
-    """.format(
-        title=title,
+    """).format(
+        title=title.replace('"', "'"),
         date=date,
         image=image,
-        ad_include=ad_include,
+        ad_tag=ad_tag,
         intro=intro,
         body1=body1,
         body2=body2,
-        backlinks=backlinks,
+        backlinks=pick_backlinks(),
         conclusion=conclusion
-    ))
+    )
 
     filename = "_posts/%s-%s.md" % (date, slug)
-    return filename, content
+    return filename, markdown
 
 def main():
     os.makedirs("_posts", exist_ok=True)
-    fn, txt = generate_md()
+    fn, md = generate_md()
     with open(fn, "w", encoding="utf-8") as f:
-        f.write(txt)
+        f.write(md)
     print("Wrote:", fn)
 
 if __name__ == "__main__":
