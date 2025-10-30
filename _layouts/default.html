@@ -1,61 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="NFTGameAI – AI-powered insights on NFT gaming, blockchain collectibles, and metaverse projects.">
-  <title>{{ page.title }}</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{ page.title | default: site.title }}</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(180deg, #ff7eb3, #ff758c, #2b0033);
-      color: #fff;
-    }
-
-    .container { max-width: 900px; margin: auto; padding: 20px; }
-    .center { text-align: center; }
-    .logo-text { font-size: 2.5em; color: #fff; text-shadow: 0 0 15px #ff89b7; }
-    .subtitle { font-size: 1.2em; opacity: 0.9; }
-
-    .section-title { color: #fff; margin-top: 40px; }
-    .post-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px #ff94c2;
-      transition: 0.3s;
-    }
-    .post-card:hover { transform: translateY(-4px); box-shadow: 0 0 20px #ff8cc0; }
-    .post-card img { width: 100%; border-radius: 10px; margin-bottom: 10px; }
-    .post-card a { color: #ffd8e9; text-decoration: none; font-weight: bold; }
-    .post-card a:hover { color: #fff; }
-
-    footer {
-      margin-top: 50px;
-      padding: 20px;
-      background: rgba(0,0,0,0.2);
-      text-align: center;
-      color: #ddd;
-    }
-    a { color: #ffb3d1; }
-    a:hover { text-decoration: underline; }
-  </style>
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6BDSQ4QGJN"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-6BDSQ4QGJN');
-  </script>
+  <meta name="description" content="{{ page.description | default: site.description }}" />
+  <link rel="stylesheet" href="/assets/style.css" />
+  {% include analytics.html %}
 </head>
-
 <body>
-  {{ content }}
+  <header class="site-header">
+    <div class="container">
+      <a class="logo" href="{{ '/' | relative_url }}">
+        <!-- svg logo or text -->
+        <img src="/assets/logo.svg" alt="{{ site.title }}" style="height:48px;"/>
+      </a>
+      <h1 class="site-title">{{ site.title }}</h1>
+      <p class="site-sub">{{ site.description }}</p>
+    </div>
+  </header>
+
+  <main class="container">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© {{ site.time | date: "%Y" }} {{ site.title }}</p>
+    </div>
+  </footer>
 </body>
 </html>
