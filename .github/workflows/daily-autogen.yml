@@ -1,33 +1,51 @@
-name: Auto Daily Post for NFTGameAI
+name: Auto Generate Daily Post for NFTGameAI
 
 on:
+  # Tự động chạy mỗi ngày lúc 9h sáng (UTC) = 16h Việt Nam
   schedule:
-    # Mỗi ngày 8h sáng UTC (15h Việt Nam)
-    - cron: "0 8 * * *"
+    - cron: "0 9 * * *"
+  # Cho phép chạy thủ công trong tab Actions
   workflow_dispatch:
+
+permissions:
+  contents: write  # ⚡ Cho phép GitHub Actions push lên repo
 
 jobs:
   autogen:
     runs-on: ubuntu-latest
+
     steps:
+      # --- 1. Clone mã nguồn ---
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true   # ⚡ Dùng GITHUB_TOKEN để push
 
+      # --- 2. Setup Python ---
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # --- 3. Cài thư viện cần thiết ---
       - name: Install dependencies
         run: pip install requests
 
+      # --- 4. Tạo bài viết mới ---
       - name: Generate new post
         run: python3 auto_generate.py
 
+      # --- 5. Commit & Push lên main ---
       - name: Commit and push
         run: |
-          git config user.name "AutoPublisher"
-          git config user.email "actions@github.com"
-          git add _posts/
-          git commit -m "🧠 Auto new post $(date +'%Y-%m-%d %H:%M')" || echo "No changes"
-          git push origin main
+          git config --global user.name "AutoPublisher"
+          git config --global user.email "auto@users.noreply.github.com"
+
+          git add _posts || true
+          if git diff --cached --quiet; then
+            echo "✅ Không có thay đổi mới, không commit."
+          else
+            git commit -m "🧠 Auto new post $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push origin main
+            echo "✅ Đã push bài viết mới thành công!"
+          fi
