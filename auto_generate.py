@@ -1,111 +1,90 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-auto_generate.py — Safe version for Jekyll + GitHub Actions
-✅ Không dùng f-string
-✅ Không lỗi Liquid syntax
-✅ Tự tạo thư mục _posts nếu chưa có
-✅ Sinh bài khác nhau mỗi ngày
-"""
+import os, random, datetime, textwrap
 
-import os
-import random
-import datetime
-import textwrap
-
-# ==== DANH SÁCH DOMAIN BACKLINK ====
 DOMAINS = [
-    "bottradingai.com", "botgame.io", "metaversebot.io", "nftgameai.com",
-    "hubgaming.io", "botdefi.io", "esportsai.io", "nftgamepro.com",
-    "botesports.com", "aiesports.io", "pronftgame.com", "botplay.io",
-    "botweb3ai.com", "botblockchain.io"
+    "bottradingai.com","botgame.io","metaversebot.io","nftgameai.com",
+    "hubgaming.io","botdefi.io","esportsai.io","nftgamepro.com",
+    "botesports.com","aiesports.io","pronftgame.com","botplay.io",
+    "botweb3ai.com","botblockchain.io"
 ]
 
-# ==== CHỦ ĐỀ BÀI VIẾT ====
 TOPICS = [
-    "AI Rewards Revolutionizing NFT Games",
-    "Blockchain Ownership Models in 2025",
-    "How AI Empowers Web3 Game Design",
-    "The Future of NFT-Based Player Economies",
-    "Metaverse Guilds and Decentralized Worlds",
-    "Adaptive Storylines with Machine Learning in Games",
-    "Play-to-Earn: What Still Works in 2025",
-    "Smart Contracts for Player Trust",
-    "Creating Sustainable Game Economies",
-    "Dynamic NFTs That Evolve With Gameplay"
+  "AI Rewards Revolutionizing NFT Games",
+  "Blockchain Ownership Models in 2025",
+  "How AI Empowers Web3 Game Design",
+  "The Future of NFT-Based Player Economies",
+  "Metaverse Guilds and Decentralized Worlds",
+  "Adaptive Storylines with Machine Learning in Games",
+  "Play-to-Earn: What Still Works in 2025",
+  "Smart Contracts for Player Trust"
 ]
 
-# ==== NGUỒN ẢNH ====
 IMAGES = [
-    "https://picsum.photos/1200/630?random=401",
-    "https://picsum.photos/1200/630?random=402",
-    "https://picsum.photos/1200/630?random=403",
-    "https://picsum.photos/1200/630?random=404",
-    "https://picsum.photos/1200/630?random=405"
+  "https://picsum.photos/1200/630?random=501",
+  "https://picsum.photos/1200/630?random=502",
+  "https://picsum.photos/1200/630?random=503",
+  "https://picsum.photos/1200/630?random=504"
 ]
 
-# ==== ĐOẠN MẪU NỘI DUNG ====
-INTRO_PARAGRAPHS = [
-    "In today’s Web3 landscape, games are no longer just entertainment — they’re economic ecosystems.",
-    "AI-driven NFT games are changing how digital assets are valued and traded by millions of players.",
-    "Developers are now merging blockchain logic with AI to craft adaptive, player-owned experiences.",
-    "The concept of virtual property is being redefined by tokenomics and decentralized infrastructure."
+INTROS = [
+  "In today’s Web3 landscape, games are no longer just entertainment — they’re economic ecosystems.",
+  "AI-driven NFT games are changing how digital assets are valued and traded by millions of players."
 ]
 
-BODY_PARAGRAPHS = [
-    "NFT integration has opened up a new layer of game ownership and engagement. Players now earn, stake, and evolve their in-game assets through smart contracts. AI ensures fairness and scalability.",
-    "With AI-generated environments, every session feels unique. Blockchain ensures these worlds stay transparent and verifiable. The fusion of AI + NFT tech is building an economy where creativity has real value.",
-    "Gamers are becoming investors in their favorite universes. Developers design sustainable token models that reward skill rather than speculation.",
-    "The Web3 movement pushes towards interoperability — assets from one world can live in another, empowering a connected Metaverse."
+BODIES = [
+  "NFT integration has opened a new layer of game ownership and engagement. Players now earn, stake, and evolve their in-game assets through smart contracts.",
+  "AI-generated environments and adaptive economies make each session unique. The fusion of AI + blockchain is building valuable virtual economies."
 ]
 
 CONCLUSIONS = [
-    "The intersection of AI and blockchain will continue to drive innovation in gaming through 2025 and beyond.",
-    "Web3 games are rewriting the relationship between player, creator, and economy.",
-    "NFT ecosystems that focus on utility and creativity will dominate the decentralized gaming future."
+  "The intersection of AI and blockchain will continue to drive innovation in gaming through 2025 and beyond.",
+  "NFT ecosystems that focus on utility and creativity will dominate the decentralized gaming future."
 ]
 
+def slugify(s):
+    s = s.lower()
+    out = []
+    for ch in s:
+        if ch.isalnum(): out.append(ch)
+        else: out.append('-')
+    return '-'.join([p for p in ''.join(out).split('-') if p])
 
-# ==== HÀM PHỤ ====
-def slugify(title):
-    result = ''.join(c if c.isalnum() else '-' for c in title.lower())
-    return '-'.join(filter(None, result.split('-')))
+def pick_backlinks(n=5):
+    choices = [d for d in DOMAINS]
+    random.shuffle(choices)
+    sel = choices[:n]
+    return "\n".join(["- [%s](https://%s)" % (d, d) for d in sel])
 
-def pick_backlinks():
-    selection = random.sample(DOMAINS, 5)
-    lines = ["- [%s](https://%s)" % (d, d) for d in selection]
-    return "\n".join(lines)
-
-def generate_article():
+def generate_md():
     title = random.choice(TOPICS)
     slug = slugify(title)
     date = datetime.date.today().isoformat()
     image = random.choice(IMAGES)
+    intro = random.choice(INTROS)
+    body1 = random.choice(BODIES)
+    body2 = random.choice(BODIES)
+    conclusion = random.choice(CONCLUSIONS)
     backlinks = pick_backlinks()
 
-    # nội dung bài viết
-    intro = random.choice(INTRO_PARAGRAPHS)
-    body1 = random.choice(BODY_PARAGRAPHS)
-    body2 = random.choice(BODY_PARAGRAPHS)
-    conclusion = random.choice(CONCLUSIONS)
+    # We add the ad include as Liquid include (Jekyll will process)
+    ad_include = "{% include ad.html %}"
 
-    ad_tag = "{% include ad.html %}"
-
-    article = textwrap.dedent("""
+    content = textwrap.dedent("""\
     ---
     layout: post
     title: "{title}"
     date: {date}
     author: "NFTGameAI Team"
-    description: "Daily auto-generated insight on NFT Gaming and AI"
+    description: "Auto insight on NFT gaming"
     image: "{image}"
     ---
 
-    _This post was auto-generated by NFTGameAI._
+    _This post was auto-generated._
 
     ![{title}]({image})
 
-    {ad_tag}
+    {ad_include}
 
     {intro}
 
@@ -126,7 +105,7 @@ def generate_article():
         title=title,
         date=date,
         image=image,
-        ad_tag=ad_tag,
+        ad_include=ad_include,
         intro=intro,
         body1=body1,
         body2=body2,
@@ -134,20 +113,15 @@ def generate_article():
         conclusion=conclusion
     ))
 
-    # file output
     filename = "_posts/%s-%s.md" % (date, slug)
-    return filename, article
+    return filename, content
 
-
-# ==== CHẠY CHÍNH ====
 def main():
     os.makedirs("_posts", exist_ok=True)
-    filename, content = generate_article()
-
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(content)
-    print("✅ Generated new post:", filename)
-
+    fn, txt = generate_md()
+    with open(fn, "w", encoding="utf-8") as f:
+        f.write(txt)
+    print("Wrote:", fn)
 
 if __name__ == "__main__":
     main()
